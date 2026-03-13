@@ -1,20 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7016512798338145"
-     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MovieHub Premium Ready</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+<style>
+body {background:#111;color:#fff;font-family:Arial,sans-serif;}
+header, footer {background:#000;text-align:center;padding:20px;font-weight:bold;}
+nav a {color:#fff;margin:0 15px;text-decoration:none;font-weight:bold;}
+#searchBar {margin:20px auto; max-width:500px; display:block; padding:10px; border-radius:5px; border:none; font-size:16px;}
+.movie-card {background:#1b1b1b;border-radius:10px;overflow:hidden;margin-bottom:20px;padding:10px;}
+.movie-card img {width:100%;height:350px;object-fit:cover;}
+.watchlist-btn {margin-top:5px;}
+.sidebar {background:#1b1b1b;padding:10px;border-radius:10px;margin-bottom:20px;}
+</style>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=YOUR_ADSENSE_ID" crossorigin="anonymous"></script>
 </head>
 <body>
-    <h1>Welcome to My Python Website 🚀</h1>
-    <p>This website is powered by Python</p>
-<!-- Google Ad Placeholder -->
-<div style="border:2px dashed #aaa; padding:10px; margin:20px;">
-    Google Ad Placeholder
+
+<header>
+  MovieHub Premium Ready
+  <div style="margin-top:10px;">
+    <ins class="adsbygoogle ad-header" style="display:block" data-ad-client="YOUR_ADSENSE_ID" data-ad-slot="1111111111" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+</header>
+
+<div class="text-center mt-3">
+  <button id="premiumBtn" class="btn btn-warning">Go Premium - $5/month</button>
 </div>
 
-    <h2>Quick Links</h2>
-    <a href="/article">Read Article</a> | 
-    <a href="/affiliate">Affiliate Links</a> | 
-    <a href="/contact">Contact Us</a>
+<input type="text" id="searchBar" placeholder="Search movies...">
+
+<nav class="text-center py-3">
+<a href="#" class="nav-link d-inline" data-category="popular">Home</a>
+<a href="#" class="nav-link d-inline" data-category="Action">Action</a>
+<a href="#" class="nav-link d-inline" data-category="Comedy">Comedy</a>
+<a href="#" class="nav-link d-inline" data-category="Romance">Romance</a>
+</nav>
+
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-lg-9" id="movieContainer"></div>
+    <div class="col-lg-3">
+      <div class="sidebar">
+        <h5>Recommended / Ads</h5>
+        <ins class="adsbygoogle ad-sidebar" style="display:block" data-ad-client="YOUR_ADSENSE_ID" data-ad-slot="2222222222" data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      </div>
+      <div class="sidebar">
+        <h5>Favorites</h5>
+        <ul id="watchlist" class="list-unstyled"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  © 2026 MovieHub Free | Powered by OMDb & YouTube
+  <div style="margin-top:10px;">
+    <ins class="adsbygoogle ad-footer" style="display:block" data-ad-client="YOUR_ADSENSE_ID" data-ad-slot="3333333333" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+</footer>
+
+<script>
+const apiKey = '8e276d36'; // Replace with your OMDb API key
+let currentQuery = 'popular';
+let currentPage = 1;
+let isFetching = false;
+let isPremium = false;
+
+// Ask email for premium check
+const userEmail = prompt("Enter your email to check premium status:");
+if(userEmail){
+  fetch(`http://localhost:3000/check-premium/${encodeURIComponent(userEmail)}`)
+    .then(res=>res.json())
+    .then(data=>{
+      if(data.isPremium){
+        isPremium = true;
+        document.querySelectorAll('.adsbygoogle').forEach(ad=>ad.style.display='none');
+        alert("Welcome Premium User! Ads are hidden.");
+      }
+    });
+}
+
+// Go Premium Button
+document.getElementById('premiumBtn').addEventListener('click', ()=>{
+  window.location.href='https://www.paypal.com/paypalme/YourUsername/5';
+  // After successful payment, backend verifies user
+  // call verifySubscription(email)
+});
+
+function addToWatchlist(title){
+  let list = JSON.parse(localStorage.getItem('watchlist') || '[]');
+  if(!list.includes(title)) list.push(title);
+  localStorage.setItem('watchlist', JSON.stringify(list));
+  renderWatchlist();
+}
+
+function renderWatchlist(){
+  const ul = document.getElementById('watchlist');
+  ul.innerHTML = '';
+  let list = JSON.parse(localStorage.getItem('watchlist') || '[]');
+  list.forEach(movie=>{
+    const li=document.createElement('li');
+    li.textContent=movie;
+    ul.appendChild(li);
+  });
+}
+renderWatchlist();
+
+async function fetchMovies(query=currentQuery,page=currentPage,append=true){
+  if(isFetching) return;
+  isFetching=true;
+  const container=document.getElementById('movieContainer');
+  if(!append) container.innerHTML='Loading...';
+
+  const url=`https://www.omdbapi.com/?s=${encodeURIComponent(query)}&page=${page}&apikey=${apiKey}`;
+  const response = await fetch(url);
+  const data = await response.json();
+
+  if(!append) container.innerHTML='';
+  if(!data.Search || data.Search.length===0){
+    if(!append) container.innerHTML='<p class="text-center">No movies found.</p>';
+    isFetching=false;
+    return;
+  }
+
+  data.Search.forEach((movie,index)=>{
+    const card=document.createElement('div');
+    card.className='col-md-3';
+    card.innerHTML=`
+      <div class='movie-card'>
+        <img src='${movie.Poster!=='N/A'?movie.Poster:""}' alt='${movie.Title}'>
+        <h5>${movie.Title}</h5>
+        <p class='text-center'>
+          <a href='https://www.youtube.com/results?search_query=${encodeURIComponent(movie.Title+" trailer")}' target='_blank' class='btn btn-primary btn-sm'>Watch Trailer</a>
+          <button class="btn btn-sm btn-success watchlist-btn" onclick="addToWatchlist('${movie.Title}')">Add to Watchlist</button>
+        </p>
+      </div>
+    `;
+    container.appendChild(card);
+
+    if(!isPremium && (index+1)%8===0){
+      const ad = document.createElement('div');
+      ad.className='col-12 text-center my-3';
+      ad.innerHTML=`
+        <ins class="adsbygoogle" style="display:block" data-ad-client="YOUR_ADSENSE_ID" data-ad-slot="4444444444" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      `;
+      container.appendChild(ad);
+      (adsbygoogle=window.adsbygoogle||[]).push({});
+    }
+  });
+  currentPage++;
+  isFetching=false;
+}
+
+fetchMovies();
+
+document.getElementById('searchBar').addEventListener('input',e=>{
+  const query=e.target.value.trim();
+  if(query){
+    currentQuery=query;
+    currentPage=1;
+    fetchMovies(currentQuery,currentPage,false);
+  }
+});
+
+document.querySelectorAll('nav a').forEach(link=>{
+  link.addEventListener('click',e=>{
+    e.preventDefault();
+    currentQuery=link.getAttribute('data-category');
+    currentPage=1;
+    document.getElementById('searchBar').value='';
+    fetchMovies(currentQuery,currentPage,false);
+  });
+});
+
+window.addEventListener('scroll',()=>{
+  if(window.innerHeight+window.scrollY>=document.body.offsetHeight-150){
+    fetchMovies(currentQuery,currentPage,true);
+  }
+});
+</script>
+
 </body>
 </html>
